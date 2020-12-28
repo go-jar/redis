@@ -19,10 +19,6 @@ func TestPool(t *testing.T) {
 	testPool(pool, t)
 }
 
-func newRedisTestClient() (*Client, error) {
-	return getTestClient(), nil
-}
-
 func testPool(p *Pool, t *testing.T) {
 	client, _ := p.Get()
 	client.Do("set", "redis_pool", "pool_test")
