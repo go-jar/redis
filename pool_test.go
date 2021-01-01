@@ -4,18 +4,16 @@ import (
 	"fmt"
 	"testing"
 	"time"
-
-	"github.com/go-jar/pool"
 )
 
 func TestPool(t *testing.T) {
-	config := &pool.Config{
-		MaxConns:          100,
-		MaxIdleTime:       time.Second * 5,
-		KeepAliveInterval: time.Second * 3,
-	}
+	config := &PoolConfig{NewClientFunc: newRedisTestClient}
 
-	pool := NewPool(config, newRedisTestClient, true)
+	config.MaxConns = 100
+	config.MaxIdleTime = time.Second * 5
+	config.KeepAliveInterval = time.Second * 3
+
+	pool := NewPool(config)
 	testPool(pool, t)
 }
 

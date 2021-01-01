@@ -4,8 +4,6 @@ import (
 	"github.com/goinbox/gomisc"
 	"testing"
 	"time"
-
-	"github.com/go-jar/pool"
 )
 
 type SqlBaseEntity struct {
@@ -24,13 +22,13 @@ type DemoEntity struct {
 var pl *Pool
 
 func init() {
-	config := &pool.Config{
-		MaxConns:          100,
-		MaxIdleTime:       time.Second * 5,
-		KeepAliveInterval: time.Second * 3,
-	}
+	config := &PoolConfig{NewClientFunc: newRedisTestClient}
 
-	pl = NewPool(config, newRedisTestClient, true)
+	config.MaxConns = 100
+	config.MaxIdleTime = time.Second * 5
+	config.KeepAliveInterval = time.Second * 3
+
+	pl = NewPool(config)
 }
 
 func TestSetGetJson(t *testing.T) {

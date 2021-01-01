@@ -2,25 +2,36 @@ package redis
 
 import "github.com/go-jar/pool"
 
-type Pool struct {
-	pl            *pool.Pool
+type PoolConfig struct {
+	pool.Config
+
 	NewClientFunc func() (*Client, error)
-	LogKeepAlive  bool
+
+	LogKeepAlive bool
+}
+
+type Pool struct {
+	pl *pool.Pool
+
+	config *PoolConfig
 }
 
 type NewClientFunc func() (*Client, error)
 
-func NewPool(config *pool.Config, ncf NewClientFunc, LogKeepAlive bool) *Pool {
+func NewPool(config *PoolConfig) *Pool {
 	p := &Pool{
-		pl:            pool.NewPool(config, nil),
-		NewClientFunc: ncf,
-		LogKeepAlive:  LogKeepAlive,
+		config: config,
 	}
-	p.pl.NewItemFunc = p.newConn
+
+	if config.NewConnFunc == nil {
+		config.NewConnFunc = p.newConn
+	}
 
 	if config.KeepAliveFunc == nil {
 		config.KeepAliveFunc = p.keepAlive
 	}
+
+	p.pl = pool.NewPool(&p.config.Config)
 
 	return p
 }
@@ -43,7 +54,7 @@ func (p *Pool) Put(client *Client) error {
 func (p *Pool) keepAlive(conn pool.IConn) error {
 	client := conn.(*Client)
 
-	if p.LogKeepAlive == true {
+	if p.config.LogKeepAlive == true {
 		return client.Do("ping").Err
 	}
 
@@ -51,5 +62,5 @@ func (p *Pool) keepAlive(conn pool.IConn) error {
 }
 
 func (p *Pool) newConn() (pool.IConn, error) {
-	return p.NewClientFunc()
+	return p.config.NewClientFunc()
 }
