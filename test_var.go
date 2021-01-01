@@ -10,7 +10,7 @@ func newRedisTestClient() (*Client, error) {
 }
 
 func getTestClient() *Client {
-	logger, _ := golog.NewConsoleLogger(golog.LEVEL_INFO)
+	logger, _ := golog.NewConsoleLogger(golog.LevelInfo)
 	config := NewConfig("127.0.0.1", "6379", "passwd")
 	config.ConnectTimeout = time.Second * 3
 
