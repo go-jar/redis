@@ -3,8 +3,9 @@ package redis
 import (
 	"encoding/json"
 	"errors"
-	"github.com/go-jar/golog"
 	"reflect"
+
+	"github.com/go-jar/golog"
 )
 
 type SimpleOrm struct {
@@ -95,8 +96,10 @@ func (so *SimpleOrm) GetAsJson(key string, value interface{}) (bool, error) {
 	return true, nil
 }
 
-func (so *SimpleOrm) SaveEntity(key string, entityPtr interface{}, expireSeconds int64) error {
-	entityArgs := ReflectSaveEntityArgs(reflect.ValueOf(entityPtr).Elem())
+func (so *SimpleOrm) SaveEntity(key string, entity interface{}, expireSeconds int64) error {
+	rev := reflect.ValueOf(entity)
+	entityArgs := ReflectSaveEntityArgs(rev)
+
 	args := make([]interface{}, len(entityArgs)+1)
 	args[0] = key
 	for i, arg := range entityArgs {
